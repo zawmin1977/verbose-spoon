@@ -1,0 +1,36 @@
+name: Build SMK POS APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Extract Project
+        run: |
+          unzip -q SMK_POS_Flutter_Starter-1.zip
+          cd smk_pos
+          flutter create --platforms=android .
+
+      - name: Get Dependencies
+        working-directory: smk_pos
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: smk_pos
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SMK-POS-APK
+          path: smk_pos/build/app/outputs/flutter-apk/app-release.apk
